@@ -25,12 +25,13 @@ fn run_solutions<T: Solution>(test_input: String, input: String) {
     let test_answer2 = T::part2(test_input);
     println!("{test_answer2}");
 
-    //println!("Solutions");
-    //let answer1 = T::part1(input.clone());
-    //println!("{answer1}");
-    //
-    //let answer2 = T::part2(input);
-    //println!("{answer2}");
+    println!("Solutions");
+    let answer1 = T::part1(input.clone());
+    println!("{answer1}");
+
+    let answer2 = T::part2(input);
+    println!("{answer2}");
+    
 }
 
 fn main() {
