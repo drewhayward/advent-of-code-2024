@@ -4,6 +4,7 @@ use std::io;
 
 use advent_of_code_2024::days::day1::ListSimilarity;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
+use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::solution::Solution;
 
 fn get_test_input(day: u64) -> io::Result<String> {
@@ -31,7 +32,6 @@ fn run_solutions<T: Solution>(test_input: String, input: String) {
 
     let answer2 = T::part2(input);
     println!("{answer2}");
-    
 }
 
 fn main() {
@@ -44,6 +44,7 @@ fn main() {
     match day {
         1 => run_solutions::<ListSimilarity>(test_input, input),
         2 => run_solutions::<MonotonicReport>(test_input, input),
+        3 => run_solutions::<MullSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
