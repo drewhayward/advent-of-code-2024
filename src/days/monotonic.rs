@@ -76,6 +76,10 @@ impl MonotonicReport {
             return true;
         }
 
+        let list_dir = MonotonicReport::list_direction(nums);
+        if list_dir == Direction::Neither {
+            return false;
+        }
 
         for (i, _) in nums.iter().enumerate() {
             let new_nums = [&nums[..i], &nums[i + 1..]].concat();
