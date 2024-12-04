@@ -1,6 +1,3 @@
-use core::panic;
-use std::collections::HashSet;
-
 use crate::solution::Solution;
 
 pub struct MonotonicReport;

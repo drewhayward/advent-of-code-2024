@@ -38,7 +38,7 @@ impl Solution for ListSimilarity {
     }
 
     fn part2(puzzle_input: String) -> String {
-        let (mut list1, mut list2) = ListSimilarity::parse_input(puzzle_input);
+        let (list1, list2) = ListSimilarity::parse_input(puzzle_input);
 
         // Build a hash map of counts in list 2
         let mut counts: HashMap<i32, i32> = HashMap::new();
