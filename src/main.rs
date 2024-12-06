@@ -5,6 +5,7 @@ use std::io;
 use advent_of_code_2024::days::day1::ListSimilarity;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
+use advent_of_code_2024::days::print_order::PrintOrder;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
@@ -47,6 +48,7 @@ fn main() {
         2 => run_solutions::<MonotonicReport>(test_input, input),
         3 => run_solutions::<MullSolution>(test_input, input),
         4 => run_solutions::<XmasSearchSolution>(test_input, input),
+        5 => run_solutions::<PrintOrder>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
