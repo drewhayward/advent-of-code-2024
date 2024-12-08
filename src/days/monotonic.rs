@@ -27,10 +27,6 @@ impl Interval {
     fn is_within_tolerance(&self, tolerance: i32) -> bool {
         (self.start - self.end).abs() <= tolerance
     }
-
-    //fn is_good(&self, direction: &Direction, tolerance: i32) -> bool {
-    //    self.is_monotonic(direction) && self.is_within_tolerance(tolerance)
-    //}
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -89,41 +85,6 @@ impl MonotonicReport {
         false
     }
 
-    //fn is_monotonic(nums: &[i32], tolerance: i32, allow_fault: bool) -> bool {
-    //    let list_dir = MonotonicReport::list_direction(nums);
-    //
-    //    if !allow_fault {
-    //        return nums
-    //            .windows(2)
-    //            .map(|window| Interval::new(window[0], window[1]))
-    //            .all(|i| i.is_good(&list_dir, tolerance));
-    //    }
-    //
-    //    let mut faults: HashSet<usize> = HashSet::new();
-    //    for (i, window) in nums.windows(3).enumerate() {
-    //        let interval1 = Interval::new(window[0], window[1]);
-    //        let interval2 = Interval::new(window[1], window[2]);
-    //        let interval3 = Interval::new(window[0], window[2]);
-    //
-    //        match (
-    //            interval1.is_good(&list_dir, tolerance),
-    //            interval2.is_good(&list_dir, tolerance),
-    //            interval3.is_good(&list_dir, tolerance),
-    //        ) {
-    //            // no faults detected
-    //            (true, true, _) => continue,
-    //            // Fault recovery
-    //            (_, _, true) => faults.insert(i + 1), // fault at win[1]
-    //            (false, true, false) => faults.insert(i + 0), // fault at win[0]
-    //            (true, false, false) => faults.insert(i + 2), // fault at win[2]
-    //            (false, false, false) => return false,
-    //        };
-    //    }
-    //
-    //    dbg!(&faults);
-    //    faults.len() <= 1
-    //}
-
     fn parse_input(puzzle_input: String) -> Vec<Vec<i32>> {
         let lines: Result<Vec<_>, _> = puzzle_input
             .lines()
@@ -157,10 +118,9 @@ impl Solution for MonotonicReport {
     }
 }
 
+#[cfg(test)]
 mod test {
-    use crate::days::monotonic::Direction;
-
-    use super::MonotonicReport;
+    use super::*;
 
     // Basic monotonic tests
     #[test]
@@ -186,10 +146,7 @@ mod test {
     // Fault tests without fault allowance
     #[test]
     fn panics_faults_desc() {
-        assert!(!MonotonicReport::is_monotonic(
-            &vec![5, 4, 100, 2, 1],
-            2,
-        ));
+        assert!(!MonotonicReport::is_monotonic(&vec![5, 4, 100, 2, 1], 2,));
     }
 
     #[test]
@@ -228,7 +185,10 @@ mod test {
 
     #[test]
     fn handles_fault_at_end() {
-        assert!(MonotonicReport::is_monotonic_with_fault(&vec![1, 2, 3, 4, 0], 2));
+        assert!(MonotonicReport::is_monotonic_with_fault(
+            &vec![1, 2, 3, 4, 0],
+            2
+        ));
     }
 
     #[test]
@@ -251,7 +211,6 @@ mod test {
     fn it_is_increasing() {
         assert!(MonotonicReport::list_direction(&vec![100, 1, 2, 3, 4]) == Direction::Increasing)
     }
-    
 
     #[test]
     fn fails_zigzag() {
@@ -292,7 +251,6 @@ mod test {
             2
         ));
     }
-
 
     #[test]
     fn fails_long_zigzag() {

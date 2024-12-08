@@ -13,7 +13,6 @@ use advent_of_code_2024::solution::Solution;
 
 fn get_test_input(day: u64) -> io::Result<String> {
     let s = format!("inputs/day{day}/test.txt");
-    dbg!(&s);
     fs::read_to_string(Path::new(&s))
 }
 
