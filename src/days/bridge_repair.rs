@@ -12,41 +12,21 @@ struct Equation {
 }
 
 impl Equation {
-    fn is_valid(target: u64, eqn: Equation, use_concat: bool) -> bool {
-        if eqn.result > target {
+    fn is_valid(target: u64, current: u64, terms: &[u64], use_concat: bool) -> bool {
+        if current > target {
             return false;
         }
 
-        if eqn.terms.is_empty() {
-            return eqn.result == target;
+        if terms.is_empty() {
+            return current == target;
         }
 
-        let mut result = Equation::is_valid(
-            target,
-            Equation {
-                result: eqn.result + eqn.terms[0],
-                terms: eqn.terms[1..].iter().cloned().collect(),
-            },
-            use_concat,
-        ) || Equation::is_valid(
-            target,
-            Equation {
-                result: eqn.result * eqn.terms[0],
-                terms: eqn.terms[1..].iter().cloned().collect(),
-            },
-            use_concat,
-        );
+        let mut result = Equation::is_valid(target, current + terms[0], &terms[1..], use_concat)
+            || Equation::is_valid(target, current * terms[0], &terms[1..], use_concat);
 
         if use_concat {
             result = result
-                || Equation::is_valid(
-                    target,
-                    Equation {
-                        result: concat(eqn.result, eqn.terms[0]),
-                        terms: eqn.terms[1..].iter().cloned().collect(),
-                    },
-                    use_concat,
-                );
+                || Equation::is_valid(target, concat(current, terms[0]), &terms[1..], use_concat);
         }
 
         result
@@ -74,17 +54,7 @@ impl Solution for BridgeSolution {
         let eqns = parse_input(puzzle_input);
 
         eqns.iter()
-            .filter_map(|e| {
-                Equation::is_valid(
-                    e.result,
-                    Equation {
-                        result: 0,
-                        terms: e.terms.clone(),
-                    },
-                    false
-                )
-                .then_some(e.result)
-            })
+            .filter_map(|e| Equation::is_valid(e.result, 0, &e.terms, false).then_some(e.result))
             .sum::<u64>()
             .to_string()
     }
@@ -93,17 +63,7 @@ impl Solution for BridgeSolution {
         let eqns = parse_input(puzzle_input);
 
         eqns.iter()
-            .filter_map(|e| {
-                Equation::is_valid(
-                    e.result,
-                    Equation {
-                        result: e.terms[0],
-                        terms: e.terms[1..].iter().cloned().collect(),
-                    },
-                    true
-                )
-                .then_some(e.result)
-            })
+            .filter_map(|e| Equation::is_valid(e.result, 0, &e.terms, true).then_some(e.result))
             .sum::<u64>()
             .to_string()
     }
