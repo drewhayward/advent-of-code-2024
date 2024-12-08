@@ -8,6 +8,7 @@ use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::days::print_order::PrintOrder;
+use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
@@ -52,6 +53,7 @@ fn main() {
         5 => run_solutions::<PrintOrder>(test_input, input),
         6 => run_solutions::<GuardSolution>(test_input, input),
         7 => run_solutions::<BridgeSolution>(test_input, input),
+        8 => run_solutions::<Resonant>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
