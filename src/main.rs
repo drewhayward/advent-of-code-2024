@@ -4,6 +4,7 @@ use std::io;
 
 use advent_of_code_2024::days::bridge_repair::BridgeSolution;
 use advent_of_code_2024::days::day1::ListSimilarity;
+use advent_of_code_2024::days::disk::DiskFragmenter;
 use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
@@ -54,6 +55,7 @@ fn main() {
         6 => run_solutions::<GuardSolution>(test_input, input),
         7 => run_solutions::<BridgeSolution>(test_input, input),
         8 => run_solutions::<Resonant>(test_input, input),
+        9 => run_solutions::<DiskFragmenter>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

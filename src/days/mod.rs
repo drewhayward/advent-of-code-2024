@@ -6,3 +6,4 @@ pub mod print_order;
 pub mod xmas;
 pub mod bridge_repair;
 pub mod resonant;
+pub mod disk;
