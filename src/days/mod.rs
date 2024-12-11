@@ -8,3 +8,4 @@ pub mod bridge_repair;
 pub mod resonant;
 pub mod disk;
 pub mod hoof;
+pub mod pebbles;

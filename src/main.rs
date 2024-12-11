@@ -9,6 +9,7 @@ use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::hoof::HoofItSolution;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
+use advent_of_code_2024::days::pebbles::PebbleCounterSolution;
 use advent_of_code_2024::days::print_order::PrintOrder;
 use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
@@ -58,6 +59,7 @@ fn main() {
         8 => run_solutions::<Resonant>(test_input, input),
         9 => run_solutions::<DiskFragmenter>(test_input, input),
         10 => run_solutions::<HoofItSolution>(test_input, input),
+        11 => run_solutions::<PebbleCounterSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
