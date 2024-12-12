@@ -5,6 +5,7 @@ use std::io;
 use advent_of_code_2024::days::bridge_repair::BridgeSolution;
 use advent_of_code_2024::days::day1::ListSimilarity;
 use advent_of_code_2024::days::disk::DiskFragmenter;
+use advent_of_code_2024::days::garden::GardenGroupSolution;
 use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::hoof::HoofItSolution;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
@@ -60,6 +61,7 @@ fn main() {
         9 => run_solutions::<DiskFragmenter>(test_input, input),
         10 => run_solutions::<HoofItSolution>(test_input, input),
         11 => run_solutions::<PebbleCounterSolution>(test_input, input),
+        12 => run_solutions::<GardenGroupSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

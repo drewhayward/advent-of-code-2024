@@ -147,7 +147,7 @@ impl Solution for DiskFragmenter {
             DiskSection::Free(free) => (block_idx + free.size, checksum),
             DiskSection::Occupied(occupied) => {
                 let mut c = checksum;
-                for idx in (block_idx..block_idx+occupied.size) {
+                for idx in block_idx..block_idx+occupied.size {
                     c += (idx as u64) * occupied.file_id;
                 }
                 (block_idx + occupied.size, c)

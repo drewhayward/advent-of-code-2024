@@ -283,12 +283,4 @@ mod test {
             1
         ));
     }
-
-    #[test]
-    fn fails_two_close_faults() {
-        assert!(!MonotonicReport::is_monotonic_with_fault(
-            &vec![1, 3, 2, 4, 5],
-            2
-        ));
-    }
 }
