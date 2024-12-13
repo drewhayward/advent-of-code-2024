@@ -10,3 +10,4 @@ pub mod disk;
 pub mod hoof;
 pub mod pebbles;
 pub mod garden;
+pub mod claw;
