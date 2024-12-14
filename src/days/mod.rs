@@ -11,3 +11,4 @@ pub mod hoof;
 pub mod pebbles;
 pub mod garden;
 pub mod claw;
+pub mod restroom;

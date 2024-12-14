@@ -14,6 +14,7 @@ use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::days::pebbles::PebbleCounterSolution;
 use advent_of_code_2024::days::print_order::PrintOrder;
 use advent_of_code_2024::days::resonant::Resonant;
+use advent_of_code_2024::days::restroom::RestroomSolution;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
@@ -64,6 +65,7 @@ fn main() {
         11 => run_solutions::<PebbleCounterSolution>(test_input, input),
         12 => run_solutions::<GardenGroupSolution>(test_input, input),
         13 => run_solutions::<ClawContraption>(test_input, input),
+        14 => run_solutions::<RestroomSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
