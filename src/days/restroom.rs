@@ -1,10 +1,8 @@
 use std::{
     collections::HashSet,
-    io::stdin,
     ops::{Add, Mul},
 };
 
-use image::{GenericImage, Pixel, Rgb};
 use itertools::Itertools;
 
 use crate::solution::Solution;
@@ -62,16 +60,13 @@ fn parse_input(puzzle_input: String) -> Vec<Robot> {
         .collect()
 }
 
-fn print_robots(robots: &[Robot], x_max: u32, y_max: u32) {
+fn print_robots(robots: &[Robot], x_max: i64, y_max: i64) {
     let positions: HashSet<_> = robots.iter().map(|r| r.pos).collect();
-    let mut img = image::RgbImage::new(x_max, y_max);
     for y in 0..y_max {
         for x in 0..x_max {
             if positions.contains(&Point(x as i64, y as i64)) {
-                img.put_pixel(x, y, Rgb([0, 255, 0]));
                 print!("#")
             } else {
-                img.put_pixel(x, y, Rgb([0, 255, 0]));
                 print!(".")
             }
         }
@@ -92,8 +87,11 @@ fn quadrant(pos: Point, x_max: i64, y_max: i64) -> Option<i64> {
 impl Solution for RestroomSolution {
     fn part1(puzzle_input: String) -> String {
         let robots = parse_input(puzzle_input);
-        let (x_max, y_max) = (101, 103);
-        //let (x_max, y_max) = (11, 7);
+        let (x_max, y_max) = if robots.len() > 12 {
+            (101, 103)
+        } else {
+            (11, 7)
+        };
 
         robots
             .iter()
@@ -107,33 +105,36 @@ impl Solution for RestroomSolution {
 
     fn part2(puzzle_input: String) -> String {
         let robots = parse_input(puzzle_input);
-        //let (x_max, y_max) = (101, 103);
-        let (x_max, y_max) = (11, 7);
-        let mut s = String::new();
-
+        let (x_max, y_max) = if robots.len() > 12 {
+            (101, 103)
+        } else {
+            return "".to_string();
+        };
         let max_steps = x_max * y_max;
-        for steps in 1..max_steps {
-            let robs: Vec<_> = robots
-                .iter()
-                .map(|r| r.simulate(steps, x_max, y_max))
-                .collect();
 
-            let score = robs
-                .iter()
-                .filter_map(|r| quadrant(r.pos, x_max, y_max))
-                .counts_by(|n| n)
-                .values()
-                .product::<usize>();
+        let step = (1..max_steps)
+            .min_by_key(|steps| {
+                let robs: Vec<_> = robots
+                    .iter()
+                    .map(|r| r.simulate(*steps, x_max, y_max))
+                    .collect();
 
-             
-            print!("{}[2J", 27 as char); // Clear screen
-            println!("{steps}");
-            print_robots(&robs, x_max as u32, y_max as u32);
+                robs.iter()
+                    .filter_map(|r| quadrant(r.pos, x_max, y_max))
+                    .counts_by(|n| n)
+                    .values()
+                    .product::<usize>()
+            })
+            .unwrap();
 
-            let _ = stdin().read_line(&mut s);
-        }
+        let robs: Vec<_> = robots
+            .iter()
+            .map(|r| r.simulate(step, x_max, y_max))
+            .collect();
 
-        "".to_string()
+        print_robots(&robs, x_max, y_max);
+
+        step.to_string()
     }
 }
 
