@@ -13,6 +13,7 @@ use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::days::pebbles::PebbleCounterSolution;
 use advent_of_code_2024::days::print_order::PrintOrder;
+use advent_of_code_2024::days::reindeer_maze::ReindeerSolution;
 use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::restroom::RestroomSolution;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
@@ -66,6 +67,7 @@ fn main() {
         12 => run_solutions::<GardenGroupSolution>(test_input, input),
         13 => run_solutions::<ClawContraption>(test_input, input),
         14 => run_solutions::<RestroomSolution>(test_input, input),
+        16 => run_solutions::<ReindeerSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

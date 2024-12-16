@@ -12,3 +12,4 @@ pub mod pebbles;
 pub mod garden;
 pub mod claw;
 pub mod restroom;
+pub mod reindeer_maze;
