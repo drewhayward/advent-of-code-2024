@@ -1,9 +1,10 @@
 use std::{
-    collections::{BinaryHeap, HashMap},
-    ops::{Add, Index},
+    collections::{BinaryHeap, HashMap, HashSet},
+    ops::Add,
+    u64,
 };
 
-use crate::solution::Solution;
+use crate::{solution::Solution, utils::wait_for_input};
 
 const DIRS: [Direction; 4] = [
     Direction::North,
@@ -22,10 +23,10 @@ impl Add for Point {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum MapTile {
     Wall,
-    Space,
+    Hall,
     Exit,
 }
 
@@ -47,13 +48,14 @@ impl Direction {
         }
     }
 
-    fn rotate(&self) -> Direction {
-        match self {
-            Direction::North => Direction::East,
-            Direction::South => Direction::West,
-            Direction::West => Direction::North,
-            Direction::East => Direction::South,
-        }
+    fn left(&self) -> Direction {
+        let current_dir_idx = DIRS.iter().position(|d| *d == *self).unwrap() as isize;
+        DIRS[(current_dir_idx - 1).rem_euclid(DIRS.len() as isize) as usize]
+    }
+
+    fn right(&self) -> Direction {
+        let current_dir_idx = DIRS.iter().position(|d| *d == *self).unwrap() as isize;
+        DIRS[(current_dir_idx + 1).rem_euclid(DIRS.len() as isize) as usize]
     }
 }
 
@@ -66,10 +68,10 @@ fn parse_input(puzzle_input: String) -> (HashMap<Point, MapTile>, Point) {
                 Point(x as i64, y as i64),
                 match cell {
                     '#' => MapTile::Wall,
-                    '.' => MapTile::Space,
+                    '.' => MapTile::Hall,
                     'S' => {
                         pos = Some(Point(x as i64, y as i64));
-                        MapTile::Space
+                        MapTile::Hall
                     }
                     'E' => MapTile::Exit,
                     x => panic!("Unknown map element {x}"),
@@ -81,55 +83,52 @@ fn parse_input(puzzle_input: String) -> (HashMap<Point, MapTile>, Point) {
     (hm, pos.expect("Map should have starting point"))
 }
 
-#[derive(Debug, Clone)]
-struct SearchState<'map> {
+#[derive(Debug, Clone, Hash)]
+struct SearchState {
     pos: Point,
     dir: Direction,
     acc_cost: u64,
     exit: Point,
-    map: &'map HashMap<Point, MapTile>,
 }
 
-impl<'map> SearchState<'map> {
+impl SearchState {
     fn approximate_dist(&self) -> u64 {
-        self.acc_cost
-            + (self.pos.0 - self.exit.0).abs() as u64
-            + (self.pos.1 - self.exit.1).abs() as u64
-    }
+        // Turns are the most expensive action, so we should try to accurately estimate them
+        let x_diff = (self.pos.0 - self.exit.0).abs();
+        let y_diff = (self.pos.1 - self.exit.1).abs();
 
-    fn neighbors(&self) -> Vec<SearchState> {
-        let mut neighbors = Vec::new();
+        let turns = if (x_diff != 0) || (y_diff != 0) {
+            1000
+        } else {
+            0
+        };
 
-        // Can move forward
-        let mut moved = self.clone();
-        moved.pos = self.pos + self.dir.as_point();
-        moved.acc_cost += 1;
-        neighbors.push(moved);
-
-        // Can turn left/right
-        let current_dir_idx = DIRS.iter().position(|d| *d == self.dir).unwrap();
-        let mut left = self.clone();
-        left.dir = DIRS[(current_dir_idx - 1).rem_euclid(DIRS.len())];
-        left.acc_cost += 1000;
-        neighbors.push(left);
-
-        let mut right = self.clone();
-        right.dir = DIRS[(current_dir_idx + 1).rem_euclid(DIRS.len())];
-        right.acc_cost += 1000;
-        neighbors.push(right);
-
-        neighbors
+        self.acc_cost + x_diff as u64 + y_diff as u64 + (turns * 1000)
     }
 }
 
-impl<'map> PartialEq for SearchState<'map> {
+fn neighbors(node: &Node) -> Vec<(Node, u64)> {
+    let (pos, dir) = node;
+    let mut neighbors = Vec::new();
+
+    // March forward and create a new state for each new branch encounter
+    neighbors.push(((*pos + dir.as_point(), *dir), 1));
+
+    // Can turn left/right
+    neighbors.push(((*pos, dir.left()), 1000));
+    neighbors.push(((*pos, dir.right()), 1000));
+
+    neighbors
+}
+
+impl PartialEq for SearchState {
     fn eq(&self, other: &Self) -> bool {
         self.pos == other.pos && self.dir == other.dir && self.acc_cost == other.acc_cost
     }
 }
-impl<'map> Eq for SearchState<'map> {}
+impl Eq for SearchState {}
 
-impl<'map> PartialOrd for SearchState<'map> {
+impl PartialOrd for SearchState {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(
             self.approximate_dist()
@@ -139,11 +138,13 @@ impl<'map> PartialOrd for SearchState<'map> {
     }
 }
 
-impl<'map> Ord for SearchState<'map> {
+impl Ord for SearchState {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.partial_cmp(other).unwrap()
     }
 }
+
+type Node = (Point, Direction);
 
 pub struct ReindeerSolution;
 
@@ -159,30 +160,81 @@ impl Solution for ReindeerSolution {
             .next()
             .unwrap();
 
-        // Searching through (state, cost) space
-        let mut frontier = BinaryHeap::new();
-        frontier.push(SearchState {
-            pos: start,
-            dir: Direction::East,
-            acc_cost: 0,
-            exit: *exit,
-            map: &map,
-        });
-        while let Some(current) = frontier.pop() {
-            match map.get(&current.pos).unwrap() {
-                MapTile::Exit => return current.acc_cost.to_string(),
-                MapTile::Space => {
-                    for neighbor in current.neighbors() {
-                        frontier.push(neighbor);
-                    }
+        let mut unvisited: HashSet<Node> = map
+            .iter()
+            .filter_map(|(p, t)| (*t != MapTile::Wall).then_some(p))
+            .flat_map(|p| {
+                vec![
+                    (*p, Direction::North),
+                    (*p, Direction::South),
+                    (*p, Direction::East),
+                    (*p, Direction::West),
+                ]
+            })
+            .collect();
+
+        let mut min_dist: HashMap<Node, u64> =
+            unvisited.iter().cloned().map(|n| (n, u64::MAX)).collect();
+        min_dist.insert((start, Direction::East), 0);
+
+        while !unvisited.is_empty() {
+            println!("{}", unvisited.len());
+            let current = unvisited.iter().min_by_key(|n| min_dist.get(&n)).unwrap().clone();
+            let current_cost = min_dist.get(&current).unwrap().clone();
+
+            for (neighbor, transition_cost) in neighbors(&current) {
+                if unvisited.contains(&neighbor) {
+                    let neighbor_cost = min_dist.get(&neighbor).unwrap().clone();
+
+                    min_dist.insert(neighbor, neighbor_cost.min(current_cost + transition_cost));
                 }
-                _ => continue,
             }
+
+            unvisited.remove(&current);
         }
 
-        "".to_string()
+        vec![
+            (*exit, Direction::North),
+            (*exit, Direction::South),
+            (*exit, Direction::East),
+            (*exit, Direction::West),
+        ]
+        .iter()
+        .map(|n| min_dist.get(n).unwrap())
+        .min()
+        .unwrap()
+        .to_string()
     }
     fn part2(puzzle_input: String) -> String {
         "".to_string()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashSet;
+
+    use super::*;
+
+    #[test]
+    fn name() {
+        let input = "###############
+#.......#....E#
+#.#.###.#.###.#
+#.....#.#...#.#
+#.###.#####.#.#
+#.#.#.......#.#
+#.#.#####.###.#
+#...........#.#
+###.#.#####.#.#
+#...#.....#.#.#
+#.#.#.###.#.#.#
+#.....#...#.#.#
+#.###.#.#.#.#.#
+#S..#.....#...#
+###############"
+            .to_string();
+
+        assert_eq!(ReindeerSolution::part1(input), "7036".to_string());
     }
 }
