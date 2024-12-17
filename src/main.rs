@@ -3,6 +3,7 @@ use std::{env, fs};
 use std::io;
 
 use advent_of_code_2024::days::bridge_repair::BridgeSolution;
+use advent_of_code_2024::days::chronospatial_comp::ChronospatialSolution;
 use advent_of_code_2024::days::claw::ClawContraption;
 use advent_of_code_2024::days::day1::ListSimilarity;
 use advent_of_code_2024::days::disk::DiskFragmenter;
@@ -30,16 +31,16 @@ fn get_input(day: u64) -> io::Result<String> {
 }
 
 fn run_solutions<T: Solution>(test_input: String, input: String) {
-    println!("Tests");
-    let test_answer1 = T::part1(test_input.clone());
-    println!("{test_answer1}");
-
-    let test_answer2 = T::part2(test_input);
-    println!("{test_answer2}");
-
-    println!("Solutions");
-    let answer1 = T::part1(input.clone());
-    println!("{answer1}");
+    //println!("Tests");
+    //let test_answer1 = T::part1(test_input.clone());
+    //println!("{test_answer1}");
+    //
+    //let test_answer2 = T::part2(test_input);
+    //println!("{test_answer2}");
+    //
+    //println!("Solutions");
+    //let answer1 = T::part1(input.clone());
+    //println!("{answer1}");
 
     let answer2 = T::part2(input);
     println!("{answer2}");
@@ -68,6 +69,7 @@ fn main() {
         13 => run_solutions::<ClawContraption>(test_input, input),
         14 => run_solutions::<RestroomSolution>(test_input, input),
         16 => run_solutions::<ReindeerSolution>(test_input, input),
+        17 => run_solutions::<ChronospatialSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

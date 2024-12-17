@@ -125,7 +125,6 @@ fn neighbors_reversed(node: &Node, map: &HashMap<Point, MapTile>) -> Vec<(Node, 
 }
 
 type Node = (Point, Direction);
-type QueueNode = (u64, Node);
 
 fn expand(p: Point) -> Vec<Node> {
     vec![
