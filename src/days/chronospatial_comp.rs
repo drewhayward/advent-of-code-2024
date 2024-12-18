@@ -204,18 +204,17 @@ impl Solution for ChronospatialSolution {
 
     fn part2(puzzle_input: String) -> String {
         let (state, program) = parse_input(puzzle_input);
-        let mut value = None;
+        //let mut value = None;
 
         // This works in general, but will take eons
-        //let mut value: u64;
-        //let start: u64 = 202316023605807;
-        //let end: u64 = (8 as u64).pow(15) * 6;
+        //let start: u64 = (2 as u64).pow(48);
+        //let end: u64 = (2 as u64).pow(49) - 1;
         //let value = (start..end).into_par_iter().find_map_first(|i| {
         //    let mut sub_state = state.clone();
         //    sub_state.a = i;
         //    let (output, end_state) = run(&program, &sub_state, true);
         //
-        //    if output.len() > 10 {
+        //    if output.len() > 12 {
         //        println!("{} {:?} {:?}", sub_state.a, output, end_state);
         //    }
         //
@@ -226,8 +225,27 @@ impl Solution for ChronospatialSolution {
         //    }
         //});
 
+        let mut result = 0;
+        let target: Vec<_> = program.iter().rev().collect();
 
-        value.unwrap().to_string()
+        'outer: for target_value in target {
+            for i in 0..7 {
+                let mut sub_state = state.clone();
+                let candidate = (result * (2 as u64).pow(3)) + i;
+                sub_state.a = candidate;
+                let (output, _) = run(&program, &sub_state, true);
+
+                if output.first().unwrap() == target_value {
+                    println!("{target_value}");
+                    result = candidate;
+                    continue 'outer;
+                }
+            }
+
+            panic!("None of them worked")
+        }
+
+        result.to_string()
     }
 }
 
