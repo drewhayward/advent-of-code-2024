@@ -18,6 +18,7 @@ use advent_of_code_2024::days::ram_run::RamRunSolution;
 use advent_of_code_2024::days::reindeer_maze::ReindeerSolution;
 use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::restroom::RestroomSolution;
+use advent_of_code_2024::days::towel::TowelSolution;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
