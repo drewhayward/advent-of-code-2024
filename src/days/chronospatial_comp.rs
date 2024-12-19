@@ -1,5 +1,4 @@
 use core::panic;
-use rayon::prelude::*;
 use std::{u32, u64};
 
 use itertools::Itertools;
@@ -191,6 +190,44 @@ fn run(program: &Program, state: &State, quine: bool) -> (Vec<u8>, State) {
     (output, current_state)
 }
 
+/// Recursively works backwards to generate a number for part 2
+fn generate_num(program: &Program, state: &State, seed: u64, targets: &[u8]) -> Option<u64> {
+    let target_value = targets.first().unwrap();
+
+    // For each 3 byte num
+    for i in 0..8 {
+        // Try it out in a clean substate
+        let mut sub_state = state.clone();
+        // Slide the existing answer over by 3 to make room
+        let candidate = (seed * (2 as u64).pow(3)) + i;
+        sub_state.a = candidate;
+        // Run the program and check the output
+        let (output, _) = run(&program, &sub_state, true);
+
+        // If we generated the right walue
+        if output.first().unwrap() == target_value {
+            // If we have remaining digits to generate
+            if targets.len() > 1 {
+                // Recurse and try to generate the remaining digits
+                // This may fail because the generated bit is affected by the
+                // lowest 7 bits of the input number 
+                let recursive_result = generate_num(program, state, candidate, &targets[1..]);
+
+                if recursive_result.is_some() {
+                    return recursive_result
+                }
+
+            } else {
+                // Yay! it worked
+                return Some(candidate)
+            }
+        }
+    }
+
+    // If it never worked, return none and stop exploring this bit prefix
+    None
+}
+
 pub struct ChronospatialSolution;
 
 impl Solution for ChronospatialSolution {
@@ -225,25 +262,9 @@ impl Solution for ChronospatialSolution {
         //    }
         //});
 
-        let mut result = 0;
-        let target: Vec<_> = program.iter().rev().collect();
+        let target: Vec<_> = program.iter().rev().cloned().collect();
 
-        'outer: for target_value in target {
-            for i in 0..7 {
-                let mut sub_state = state.clone();
-                let candidate = (result * (2 as u64).pow(3)) + i;
-                sub_state.a = candidate;
-                let (output, _) = run(&program, &sub_state, true);
-
-                if output.first().unwrap() == target_value {
-                    println!("{target_value}");
-                    result = candidate;
-                    continue 'outer;
-                }
-            }
-
-            panic!("None of them worked")
-        }
+        let result = generate_num(&program, &state, 0, &target).unwrap();
 
         result.to_string()
     }
