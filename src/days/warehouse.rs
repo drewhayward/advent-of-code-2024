@@ -34,11 +34,22 @@ impl Direction {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum MapTile {
     Wall,
     Box,
     Space,
+    LBox,
+    RBox,
+}
+
+/// Find the 'root' coord for a 2-wide box
+fn root(map: &HashMap<Point, MapTile>, p: Point) -> Point {
+    match map.get(&p).unwrap() {
+        MapTile::LBox => p,
+        MapTile::RBox => p + Direction::Left.as_point(),
+        x => panic!("calling root for {:?}", x),
+    }
 }
 
 fn parse_input(puzzle_input: String) -> (HashMap<Point, MapTile>, Vec<Direction>, Point) {
@@ -79,13 +90,29 @@ fn parse_input(puzzle_input: String) -> (HashMap<Point, MapTile>, Vec<Direction>
     (map, moves, robot.unwrap())
 }
 
+fn expand_map(map: HashMap<Point, MapTile>) -> HashMap<Point, MapTile> {
+    map.iter()
+        .flat_map(|(p, tile)| {
+            let (ltile, rtile) = match tile.clone() {
+                MapTile::Box => (MapTile::LBox, MapTile::RBox),
+                t => (t, t),
+            };
+
+            vec![
+                (Point(p.0 * 2, p.1), ltile),
+                (Point(p.0 * 2 + 1, p.1), rtile),
+            ]
+        })
+        .collect()
+}
+
 fn print_map(map: &HashMap<Point, MapTile>, robot: &Point) {
     let x_min = map.keys().map(|p| p.0).max().unwrap();
     let y_min = map.keys().map(|p| p.1).max().unwrap();
 
     for y in 0..y_min + 1 {
         for x in 0..x_min + 1 {
-            let p = Point(x,y);
+            let p = Point(x, y);
             if p == *robot {
                 print!("@");
                 continue;
@@ -95,11 +122,83 @@ fn print_map(map: &HashMap<Point, MapTile>, robot: &Point) {
                 MapTile::Wall => "#",
                 MapTile::Space => ".",
                 MapTile::Box => "O",
+                MapTile::LBox => "[",
+                MapTile::RBox => "]",
             };
             print!("{c}");
         }
         print!("\n");
     }
+}
+
+fn can_move_box(candidate: Point, dir: Direction, map: &HashMap<Point, MapTile>) -> bool {
+    match map.get(&candidate) {
+        Some(MapTile::Space) => return true,
+        Some(MapTile::Box) => return can_move_box(candidate + dir.as_point(), dir, map),
+        Some(MapTile::LBox) | Some(MapTile::RBox) => match dir {
+            // L/R behaves normally
+            Direction::Left | Direction::Right => {
+                return can_move_box(candidate + dir.as_point(), dir, map)
+            }
+            // Also check the siblings movability
+            _ => {
+                let root_pos = root(map, candidate);
+                let sibling_pos = root_pos + Direction::Right.as_point();
+
+                can_move_box(root_pos + dir.as_point(), dir, map)
+                    && can_move_box(sibling_pos + dir.as_point(), dir, map)
+            }
+        },
+        _ => return false,
+    }
+}
+
+/// Called on a root movable map tile which recurses to move all the necessary knock-on tiles
+fn move_box(candidate: Point, dir: Direction, map: &mut HashMap<Point, MapTile>) {
+    let tile = map.get(&candidate).unwrap();
+    match tile {
+        MapTile::Wall => panic!("Tried to move into a wall"),
+        MapTile::Box => {
+            // First make room
+            move_box(candidate + dir.as_point(), dir, map);
+
+            // Then move this thing
+            let tile = map.get(&candidate).unwrap().clone();
+            map.insert(candidate, MapTile::Space);
+            map.insert(candidate + dir.as_point(), tile);
+        }
+        MapTile::RBox | MapTile::LBox => match dir {
+            // Move dependencies
+            Direction::Left | Direction::Right => {
+                move_box(candidate + dir.as_point(), dir, map);
+                let tile = map.get(&candidate).unwrap().clone();
+                map.insert(candidate, MapTile::Space);
+                map.insert(candidate + dir.as_point(), tile);
+            }
+            // Need to handle the cases for touching boxes
+            _ => {
+                let root_pos = root(map, candidate);
+                let sibling_pos = root_pos + Direction::Right.as_point();
+
+                // No matter what, move the left one
+                move_box(root_pos + dir.as_point(), dir, map);
+
+                // If the right one is a diff box, also call move on it
+                if let Some(MapTile::LBox) = map.get(&(sibling_pos + dir.as_point())) {
+                    move_box(sibling_pos + dir.as_point(), dir, map);
+                }
+
+                // Then move myself and my sibling thing
+                let tile = map.get(&root_pos).unwrap().clone();
+                map.insert(root_pos, MapTile::Space);
+                map.insert(root_pos + dir.as_point(), tile);
+                let tile = map.get(&sibling_pos).unwrap().clone();
+                map.insert(sibling_pos, MapTile::Space);
+                map.insert(sibling_pos + dir.as_point(), tile);
+            }
+        },
+        _ => {}
+    };
 }
 
 pub struct WarehouseSolution;
@@ -110,30 +209,12 @@ impl Solution for WarehouseSolution {
 
         let mut current_position = robot.clone();
         for move_ in moves {
-            //print_map(&map, &current_position);
-            //wait_for_input();
-
             let target_position = current_position + move_.as_point();
-            // Scan in the move direction over any boxes until a space is found
-            let mut empty_spot = target_position.clone();
-            while let Some(MapTile::Box) = map.get(&empty_spot) {
-                empty_spot = empty_spot + move_.as_point();
+            if can_move_box(target_position, move_, &map) {
+                move_box(target_position, move_, &mut map);
+                current_position = target_position;
             }
-
-            // If the non-box is not a space, we can't move!
-            if map.get(&empty_spot).cloned() != Some(MapTile::Space) {
-                continue;
-            }
-
-            // We need to swap the boxes
-            if empty_spot != target_position {
-                map.insert(target_position, MapTile::Space);
-                map.insert(empty_spot, MapTile::Box);
-            }
-            current_position = target_position;
         }
-
-        //print_map(&map, &current_position);
 
         map.iter()
             .filter_map(|(point, tile)| match tile {
@@ -145,6 +226,30 @@ impl Solution for WarehouseSolution {
     }
 
     fn part2(puzzle_input: String) -> String {
-        String::new()
+        let (mut map, moves, mut robot) = parse_input(puzzle_input);
+        robot.0 = robot.0 * 2;
+        map = expand_map(map);
+
+        let mut current_position = robot.clone();
+        for move_ in moves {
+            //print_map(&map, &current_position);
+            //wait_for_input();
+
+            let target_position = current_position + move_.as_point();
+            if can_move_box(target_position, move_, &map) {
+                move_box(target_position, move_, &mut map);
+                current_position = target_position;
+            }
+        }
+
+        print_map(&map, &current_position);
+
+        map.iter()
+            .filter_map(|(point, tile)| match tile {
+                MapTile::LBox => Some(point.1 * 100 + point.0),
+                _ => None,
+            })
+            .sum::<i64>()
+            .to_string()
     }
 }
