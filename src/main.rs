@@ -19,6 +19,7 @@ use advent_of_code_2024::days::reindeer_maze::ReindeerSolution;
 use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::restroom::RestroomSolution;
 use advent_of_code_2024::days::towel::TowelSolution;
+use advent_of_code_2024::days::warehouse::WarehouseSolution;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
@@ -70,9 +71,11 @@ fn main() {
         12 => run_solutions::<GardenGroupSolution>(test_input, input),
         13 => run_solutions::<ClawContraption>(test_input, input),
         14 => run_solutions::<RestroomSolution>(test_input, input),
+        15 => run_solutions::<WarehouseSolution>(test_input, input),
         16 => run_solutions::<ReindeerSolution>(test_input, input),
         17 => run_solutions::<ChronospatialSolution>(test_input, input),
         18 => run_solutions::<RamRunSolution>(test_input, input),
+        19 => run_solutions::<TowelSolution>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
