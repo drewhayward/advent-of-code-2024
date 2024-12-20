@@ -14,6 +14,7 @@ use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::days::pebbles::PebbleCounterSolution;
 use advent_of_code_2024::days::print_order::PrintOrder;
+use advent_of_code_2024::days::race_condition::RaceCondition;
 use advent_of_code_2024::days::ram_run::RamRunSolution;
 use advent_of_code_2024::days::reindeer_maze::ReindeerSolution;
 use advent_of_code_2024::days::resonant::Resonant;
@@ -76,6 +77,7 @@ fn main() {
         17 => run_solutions::<ChronospatialSolution>(test_input, input),
         18 => run_solutions::<RamRunSolution>(test_input, input),
         19 => run_solutions::<TowelSolution>(test_input, input),
+        20 => run_solutions::<RaceCondition>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

@@ -17,3 +17,4 @@ pub mod reindeer_maze;
 pub mod chronospatial_comp;
 pub mod ram_run;
 pub mod towel;
+pub mod race_condition;
