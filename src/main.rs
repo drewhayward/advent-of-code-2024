@@ -11,6 +11,7 @@ use advent_of_code_2024::days::garden::GardenGroupSolution;
 use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::hoof::HoofItSolution;
 use advent_of_code_2024::days::keypad::Keypad;
+use advent_of_code_2024::days::lan_party::LanParty;
 use advent_of_code_2024::days::monkey::MonkeyMarket;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
@@ -82,6 +83,7 @@ fn main() {
         20 => run_solutions::<RaceCondition>(test_input, input),
         21 => run_solutions::<Keypad>(test_input, input),
         22 => run_solutions::<MonkeyMarket>(test_input, input),
+        23 => run_solutions::<LanParty>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
