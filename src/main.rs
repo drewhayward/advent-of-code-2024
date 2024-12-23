@@ -10,6 +10,7 @@ use advent_of_code_2024::days::disk::DiskFragmenter;
 use advent_of_code_2024::days::garden::GardenGroupSolution;
 use advent_of_code_2024::days::guard::GuardSolution;
 use advent_of_code_2024::days::hoof::HoofItSolution;
+use advent_of_code_2024::days::keypad::Keypad;
 use advent_of_code_2024::days::monotonic::MonotonicReport;
 use advent_of_code_2024::days::mull::MullSolution;
 use advent_of_code_2024::days::pebbles::PebbleCounterSolution;
@@ -78,6 +79,7 @@ fn main() {
         18 => run_solutions::<RamRunSolution>(test_input, input),
         19 => run_solutions::<TowelSolution>(test_input, input),
         20 => run_solutions::<RaceCondition>(test_input, input),
+        21 => run_solutions::<Keypad>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }
