@@ -24,6 +24,7 @@ use advent_of_code_2024::days::resonant::Resonant;
 use advent_of_code_2024::days::restroom::RestroomSolution;
 use advent_of_code_2024::days::towel::TowelSolution;
 use advent_of_code_2024::days::warehouse::WarehouseSolution;
+use advent_of_code_2024::days::wires::CrossedWires;
 use advent_of_code_2024::days::xmas::XmasSearchSolution;
 use advent_of_code_2024::solution::Solution;
 
@@ -84,6 +85,7 @@ fn main() {
         21 => run_solutions::<Keypad>(test_input, input),
         22 => run_solutions::<MonkeyMarket>(test_input, input),
         23 => run_solutions::<LanParty>(test_input, input),
+        24 => run_solutions::<CrossedWires>(test_input, input),
         _ => println!("No day solution for day {day}")
     }
 }

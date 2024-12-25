@@ -21,3 +21,4 @@ pub mod race_condition;
 pub mod keypad;
 pub mod monkey;
 pub mod lan_party;
+pub mod wires;
