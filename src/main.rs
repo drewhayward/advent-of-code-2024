@@ -43,8 +43,8 @@ fn run_solutions<T: Solution>(test_input: String, input: String) {
     let test_answer1 = T::part1(test_input.clone());
     println!("{test_answer1}");
 
-    let test_answer2 = T::part2(test_input);
-    println!("{test_answer2}");
+    //let test_answer2 = T::part2(test_input);
+    //println!("{test_answer2}");
 
     println!("Solutions");
     let answer1 = T::part1(input.clone());
