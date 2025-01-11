@@ -133,7 +133,7 @@ fn run_circuit(x: u64, y: u64, max_steps: u64, gates: &[Gate]) -> u64 {
 
 /// Starting from wire, search backwards through the gates to find all wires which affect the
 /// result
-fn search_gates(wire: String, gates: &[Gate]) -> HashSet<String> {
+fn search_gates(wire: String, gates: &[Gate], backward: bool) -> HashSet<String> {
     let mut visited = HashSet::new();
     let mut frontier = vec![wire];
     while let Some(wire) = frontier.pop() {
@@ -144,9 +144,15 @@ fn search_gates(wire: String, gates: &[Gate]) -> HashSet<String> {
         }
 
         for gate in gates {
-            if gate.output == wire {
-                frontier.push(gate.lhs.to_string());
-                frontier.push(gate.rhs.to_string());
+            match backward {
+                true if gate.output == wire => {
+                    frontier.push(gate.lhs.to_string());
+                    frontier.push(gate.rhs.to_string());
+                }
+                false if gate.lhs == wire || gate.rhs == wire => {
+                    frontier.push(gate.output.to_string().clone());
+                }
+                _ => {}
             }
         }
     }
@@ -172,14 +178,12 @@ impl Solution for CrossedWires {
             step(&mut circuit_state, &gates);
             num_steps += 1;
         }
-        println!("Took {num_steps} steps to compute.");
 
         read_value('z', &circuit_state).to_string()
     }
 
     fn part2(puzzle_input: String) -> String {
         let (inputs, gates) = parse_input(&puzzle_input);
-        let max_value = (2 as u64).pow(46);
 
         let zvalues: Vec<_> = gates
             .iter()
@@ -188,10 +192,18 @@ impl Solution for CrossedWires {
             .collect();
 
         let mut circuit_state = inputs.clone();
-        let mut num_steps = 0;
         while !all_zvalues_set(&circuit_state, &zvalues) {
             step(&mut circuit_state, &gates);
-            num_steps += 1;
+            let x = read_value('x', &circuit_state);
+            let y = read_value('y', &circuit_state);
+            let z = read_value('z', &circuit_state);
+
+            println!("x: {x:#064b}");
+            println!("y: {y:#064b}");
+            println!("z: {z:#064b}");
+            println!("+: {:#064b}", (x + y));
+            println!("^: {:#064b}", z ^ (x + y));
+            println!("---");
         }
         let x = read_value('x', &circuit_state);
         let y = read_value('y', &circuit_state);
@@ -220,20 +232,20 @@ impl Solution for CrossedWires {
         // Assume gates which are only reachable from bad bits are the candidate flipped gates.
         let mut reachable_bad = HashSet::new();
         for bad_wire in bad_wires {
-            let reachable = search_gates(bad_wire, &gates);
+            let reachable = search_gates(bad_wire, &gates, true);
             reachable_bad.extend(reachable);
         }
 
         let mut reachable_good = HashSet::new();
         for good_wire in good_wires {
-            let reachable = search_gates(good_wire, &gates);
+            let reachable = search_gates(good_wire, &gates, true);
             reachable_good.extend(reachable);
         }
 
-        let tainted: HashSet<_> = reachable_bad.difference(&reachable_good).cloned().collect();
-
-        dbg!(reachable_bad);
-        dbg!(tainted);
+        let mut tainted: HashSet<_> = reachable_bad.difference(&reachable_good).cloned().collect();
+        dbg!(&tainted);
+        dbg!(search_gates("cdk".to_string(), &gates, false));
+        dbg!(search_gates("rmn".to_string(), &gates, false));
 
         // ... Profit? (Depending on how many gates are candidate bad gates we may be able to just
         // search through that space)
